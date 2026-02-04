@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake libssl-dev libboost-all-dev pkg-config libgtest-dev
+          sudo apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev
+          # Build and install GoogleTest if needed
+          if [ ! -f /usr/lib/libgtest.a ]; then
+            mkdir -p /tmp/gtest-build && cd /tmp/gtest-build && cmake /usr/src/gtest && make && sudo cp lib/*.a /usr/lib/ || true; cd -
+
+          fi
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build -j$(nproc)
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure || true

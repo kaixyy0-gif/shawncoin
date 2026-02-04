@@ -1,0 +1,188 @@
+# Shawn Coin (SHWN) Configuration File
+# Copy to ~/.shawncoin/shawncoin.conf or use -conf=<path>
+# 
+# SECURITY WARNING: 
+# - Never share this file or commit to version control
+# - Use strong, unique passwords for RPC authentication
+# - Restrict rpcallowip to trusted networks only
+# - Consider using a dedicated user account for running the daemon
+
+# =============================================================================
+# NETWORK CONFIGURATION
+# =============================================================================
+[network]
+# Enable P2P network listening (1=enabled, 0=disabled)
+listen=1
+
+# P2P network port (default: 7333)
+port=7333
+
+# Maximum number of peer connections (recommended: 8-50 for home users)
+maxconnections=50
+
+# DNS seeds (uncomment to connect to specific seed nodes)
+# addnode=seed1.shawncoin.org
+# addnode=seed2.shawncoin.org
+
+# Bind to specific IP address (optional)
+# bind=127.0.0.1:7333
+
+# =============================================================================
+# RPC API CONFIGURATION
+# =============================================================================
+[rpc]
+# RPC API port (default: 7332)
+rpcport=7332
+
+# IMPORTANT: Change these credentials!
+# Generate with: openssl rand -base64 32
+rpcuser=shawncoin_user_$(openssl rand -hex 8)
+rpcpassword=YOUR_STRONG_PASSWORD_HERE_$(openssl rand -hex 16)
+
+# IP addresses allowed to connect to RPC (comma-separated)
+# For local use only: 127.0.0.1
+# For LAN access: 127.0.0.1,192.168.1.0/24
+rpcallowip=127.0.0.1
+
+# Enable HTTPS for RPC (requires SSL certificates, recommended for production)
+# rpchost=0.0.0.0
+# rpcssl=1
+# rpcsslcertificatechainfile=/path/to/server.crt
+# rpcsslprivatekeyfile=/path/to/server.key
+
+# =============================================================================
+# MINING CONFIGURATION
+# =============================================================================
+[mining]
+# Start mining automatically (1=enabled, 0=disabled)
+gen=0
+
+# Number of mining threads (recommended: number of CPU cores - 1)
+genproclimit=2
+
+# Address to receive mining rewards (Base58Check Shawn address)
+# Generate with: ./shawncoin-cli getnewaddress
+# mineaddr=Sxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Mining difficulty settings (for testing networks only)
+# testnet=1
+# mindifficulty=1
+
+# =============================================================================
+# WALLET CONFIGURATION
+# =============================================================================
+[wallet]
+# Number of keys in the keypool for automatic address generation
+keypool=1000
+
+# Enable wallet encryption (highly recommended)
+# encryptwallet=1
+
+# Automatically unlock wallet on startup (not recommended for production)
+# walletpassphrase=your_wallet_password
+# walletpassphrase_timeout=60
+
+# Backup wallet automatically (seconds, 0=disabled)
+# walletbackup=3600
+
+# =============================================================================
+# DEBUG AND LOGGING
+# =============================================================================
+[debug]
+# Debug logging levels (1=error, 2=warning, 3=info, 4=debug, 5=trace)
+debug=3
+
+# Log file location (empty = stderr only)
+logfile=~/.shawncoin/debug.log
+
+# Log timestamps
+logtimestamps=1
+
+# Log IP addresses (privacy concern, disable for production)
+logips=0
+
+# =============================================================================
+# PERFORMANCE TUNING
+# =============================================================================
+[optimization]
+# Database cache size in MB (recommended: 100-500 for desktop, 1000+ for servers)
+dbcache=256
+
+# Memory pool size in MB
+maxmempool=300
+
+# Block pruning (reduces disk usage, requires full sync to disable)
+# prune=5500  # Keep last 5500 MB of blocks
+
+# =============================================================================
+# SECURITY SETTINGS
+# =============================================================================
+[security]
+# Enable transaction fee validation
+checkfee=1
+
+# Minimum transaction fee in SHWN (0.0001 by default)
+minfee=0.0001
+
+# Maximum block size in MB
+maxblocksize=2
+
+# Enable spam protection
+spamprevention=1
+
+# =============================================================================
+# NETWORK PROXY (if needed)
+# =============================================================================
+# Use SOCKS5 proxy
+# proxy=127.0.0.1:9050
+# proxyrandomize=1
+
+# =============================================================================
+# ADVANCED SETTINGS
+# =============================================================================
+[advanced]
+# Disable deprecated RPC calls
+deprecatedrpc=disable
+
+# Enable address index (increases disk usage)
+addressindex=0
+
+# Enable transaction index (increases disk usage)
+txindex=0
+
+# Block relay settings
+blocksonly=0
+maxuploadtarget=500
+
+# =============================================================================
+# EXAMPLE PRODUCTION CONFIGURATION
+# =============================================================================
+# For production deployment, consider these settings:
+#
+# [network]
+# maxconnections=25
+# listen=1
+# port=7333
+#
+# [rpc]
+# rpcuser=unique_strong_username
+# rpcpassword=very_long_random_password_32_chars_min
+# rpcallowip=10.0.0.0/8
+# rpcport=7332
+#
+# [mining]
+# gen=0
+# genproclimit=4
+#
+# [security]
+# checkfee=1
+# spamprevention=1
+#
+# [optimization]
+# dbcache=1024
+# maxmempool=500
+#
+# [debug]
+# debug=2
+# logfile=/var/log/shawncoin/debug.log
+# logtimestamps=1

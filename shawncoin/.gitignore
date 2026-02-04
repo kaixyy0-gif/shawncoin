@@ -1,0 +1,57 @@
+# Build directories
+build/
+cmake-build-*/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Compiled objects
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Dependencies
+depends/build/
+depends/*/build/
+
+# Test artifacts
+Testing/
+*.gcno
+*.gcda
+coverage/
+*.log
+
+# Shawn Coin data
+.shawncoin/
+*.dat
+wallet.dat
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Fuzzing
+corpus/
+*.profraw
+*.profdata

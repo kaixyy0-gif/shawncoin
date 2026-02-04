@@ -1,0 +1,14 @@
+[Unit]
+Description=Shawn Coin Daemon
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/shawncoind -daemon -conf=/etc/shawncoin/shawncoin.conf
+ExecStop=/usr/local/bin/shawncoin-cli -conf=/etc/shawncoin/shawncoin.conf stop
+User=shawncoin
+Group=shawncoin
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
