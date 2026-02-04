@@ -8,6 +8,11 @@
 
 namespace shawncoin {
 
+MemoryChainState::~MemoryChainState() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    // Cleanup if needed
+}
+
 bool MemoryChainState::init(const std::string& path) {
     path_ = path;
     return true;

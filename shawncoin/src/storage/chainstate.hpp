@@ -26,6 +26,7 @@ public:
 /** In-memory chain state (no persistence). */
 class MemoryChainState : public ChainState {
 public:
+    ~MemoryChainState() override;
     bool init(const std::string& path) override;
     void shutdown() override;
     bool getBestBlock(uint256& hash, uint64_t& height) const override;

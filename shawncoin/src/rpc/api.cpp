@@ -4,11 +4,14 @@
 #include "core/mempool.hpp"
 #include "mining/miner.hpp"
 #include "wallet/hdwallet.hpp"
+#include "wallet/wallet.hpp"
 #include "crypto/address.hpp"
 #include "util/logger.hpp"
+#include "util/util.hpp"
 #include <sstream>
 #include <fstream>
 #include <cstring>
+#include <ctime>
 
 // Simple JSON parser for RPC (avoid external dependency)
 #include <map>
@@ -25,9 +28,26 @@ public:
     SimpleJson() : data(nullptr) {}
     SimpleJson(const std::string& s) : data(s) {}
     SimpleJson(int64_t i) : data(i) {}
+    SimpleJson(int i) : data(static_cast<int64_t>(i)) {}
     SimpleJson(double d) : data(d) {}
     SimpleJson(bool b) : data(b) {}
     SimpleJson(std::nullptr_t) : data(nullptr) {}
+    
+    // Assignment operators to resolve ambiguity
+    SimpleJson& operator=(const std::string& s) { data = s; return *this; }
+    SimpleJson& operator=(int64_t i) { data = i; return *this; }
+    SimpleJson& operator=(int i) { data = static_cast<int64_t>(i); return *this; }
+    SimpleJson& operator=(uint32_t i) { data = static_cast<int64_t>(i); return *this; }
+    SimpleJson& operator=(uint64_t i) { data = static_cast<int64_t>(i); return *this; }
+    SimpleJson& operator=(double d) { data = d; return *this; }
+    SimpleJson& operator=(bool b) { data = b; return *this; }
+    
+    // Helper to create objects with initializer lists
+    static SimpleJson create_object(std::initializer_list<std::pair<const std::string, SimpleJson>> init) {
+        SimpleJson j;
+        j.data = std::map<std::string, SimpleJson>(init);
+        return j;
+    }
     
     static SimpleJson parse(const std::string& json) {
         // Basic parsing - just handles simple RPC calls
@@ -90,6 +110,46 @@ public:
         return oss.str();
     }
     
+    static SimpleJson object() {
+        SimpleJson j;
+        j.data = std::map<std::string, SimpleJson>();
+        return j;
+    }
+    
+    static SimpleJson array() {
+        SimpleJson j;
+        j.data = std::vector<SimpleJson>();
+        return j;
+    }
+    
+    size_t size() const {
+        if (auto* arr = std::get_if<std::vector<SimpleJson>>(&data)) {
+            return arr->size();
+        }
+        if (auto* obj = std::get_if<std::map<std::string, SimpleJson>>(&data)) {
+            return obj->size();
+        }
+        return 0;
+    }
+    
+    void push_back(const SimpleJson& value) {
+        if (auto* arr = std::get_if<std::vector<SimpleJson>>(&data)) {
+            arr->push_back(value);
+        } else {
+            // Convert to array if not already
+            data = std::vector<SimpleJson>{value};
+        }
+    }
+    
+    SimpleJson operator[](int index) const {
+        if (auto* arr = std::get_if<std::vector<SimpleJson>>(&data)) {
+            if (index >= 0 && index < static_cast<int>(arr->size())) {
+                return (*arr)[index];
+            }
+        }
+        return SimpleJson();
+    }
+    
 private:
     void dump_recursive(std::ostringstream& oss) const {
         if (auto* s = std::get_if<std::string>(&data)) {
@@ -124,8 +184,6 @@ private:
 };
 
 using json = SimpleJson;
-
-namespace shawncoin {
 
 std::string apiBlockchainInfo(RpcContext* ctx) {
     if (!ctx || !ctx->chain) return "{}";
@@ -163,8 +221,8 @@ std::string handleRpcRequest(const std::string& request, RpcContext* ctx) {
     } catch (const std::exception&) {
         json err;
         err["jsonrpc"] = "2.0";
-        err["error"] = { {"code", -32700}, {"message", "Parse error"} };
-        err["id"] = nullptr;
+        err["error"] = SimpleJson::create_object({ {"code", static_cast<int64_t>(-32700)}, {"message", "Parse error"} });
+        err["id"] = SimpleJson(nullptr);
         return err.dump();
     }
 
@@ -174,7 +232,7 @@ std::string handleRpcRequest(const std::string& request, RpcContext* ctx) {
     if (req.contains("id")) id = req["id"];
 
     if (!req.contains("method") || !req["method"].is_string()) {
-        resp["error"] = { {"code", -32600}, {"message", "Invalid Request"} };
+        resp["error"] = SimpleJson::create_object({ {"code", static_cast<int64_t>(-32600)}, {"message", "Invalid Request"} });
         resp["id"] = id;
         return resp.dump();
     }
@@ -444,11 +502,11 @@ std::string handleRpcRequest(const std::string& request, RpcContext* ctx) {
             return resp.dump();
         }
 
-        resp["error"] = { {"code", -32601}, {"message", "Method not found"} };
+        resp["error"] = SimpleJson::create_object({ {"code", static_cast<int64_t>(-32601)}, {"message", "Method not found"} });
         resp["id"] = id;
         return resp.dump();
     } catch (const std::exception& ex) {
-        resp["error"] = { {"code", -32602}, {"message", ex.what()} };
+        resp["error"] = SimpleJson::create_object({ {"code", static_cast<int64_t>(-32602)}, {"message", std::string(ex.what())} });
         resp["id"] = id;
         return resp.dump();
     }
